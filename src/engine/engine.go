@@ -22,13 +22,16 @@ type Engine struct {
 func GetAllTranslators() []Translator {
 	translators := make([]Translator, 0)
 
-	g := &GoogleTranslator{}
+	g := &Google{}
 	g.ApiUrl = "http://translate.google.com/translate_a/single"
 	g.SupportModel = "sentence"
 	g.Params = map[string]string{
 		"client": "at",
 		"dt":     "t",
 	}
+
+	m := &Mojo{}
+	m.ApiUrl = "https://api.mojidict.com/parse/functions/union-ap"
 
 	translators = append(translators, g)
 

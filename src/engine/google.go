@@ -9,14 +9,11 @@ import (
 	"k8s.io/klog"
 )
 
-type GoogleTranslator struct {
+type Google struct {
 	Engine
 }
 
-func (g *GoogleTranslator) Translate(text, sl string) (string, string, error) {
-	if text == "" {
-		klog.Fatal("no translate text")
-	}
+func (g *Google) Translate(text, sl string) (string, string, error) {
 	var tls1, tls2 string
 	if sl == "zh" {
 		tls1, tls2 = "en", "ja"
