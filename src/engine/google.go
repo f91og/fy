@@ -2,11 +2,10 @@ package engine
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-
-	"k8s.io/klog"
 )
 
 type Google struct {
@@ -39,7 +38,7 @@ func (g *Google) Translate(text, sl string) (string, string, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		klog.Fatal("request failed, google translate may limit your access")
+		return "", "", fmt.Errorf("request failed, google translate may limit your access")
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

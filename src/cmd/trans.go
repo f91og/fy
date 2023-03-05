@@ -24,7 +24,7 @@ var TransCmd = &cobra.Command{
 		}
 		fmt.Println(text)
 
-		translators := engine.GetAllTranslators()
+		translators := engine.GetTranslators(sl)
 
 		// todo: check translator support model
 		for _, trans := range translators {
@@ -33,6 +33,8 @@ var TransCmd = &cobra.Command{
 				fmt.Println(res1)
 				fmt.Println(res2)
 				break
+			} else {
+				fmt.Println(err)
 			}
 		}
 	},

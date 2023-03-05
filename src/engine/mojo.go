@@ -1,9 +1,9 @@
 package engine
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -12,26 +12,61 @@ type Mojo struct {
 	Engine
 }
 
+type SearchResult struct {
+	Title   string `json:"title"`
+	Excerpt string `json:"excerpt"`
+}
+
+type Response struct {
+	Result struct {
+		Code    int `json:"code"`
+		Results struct {
+			SearchAll struct {
+				Code   int `json:"code"`
+				Result struct {
+					Word struct {
+						SearchResult []SearchResult `json:"searchResult"`
+					} `json:"word"`
+					Grammar struct {
+						SearchResult []SearchResult `json:"searchResult"`
+					} `json:"grammar"`
+					Example struct {
+						SearchResult []SearchResult `json:"searchResult"`
+					} `json:"example"`
+				} `json:"result"`
+			} `json:"search-all"`
+		} `json:"results"`
+	} `json:"result"`
+}
+
 func (m *Mojo) Translate(text, sl string) (string, string, error) {
-	client := &http.Client{}
-	m.Params[""] = ""
-	data := strings.NewReader(`{"functions":[{"name":"search-all","params":{"text":"訳す","types":[102,106,103]}},{"name":"mojitest-examV2-searchQuestion-v2","params":{"text":"訳す","limit":1,"page":1}}],"_ApplicationId":"E62VyFVLMiW7kvbtVq3p"}`)
-	req, err := http.NewRequest("POST", m.ApiUrl, data)
+	rawStr := fmt.Sprintf(`{"functions":[{"name":"search-all","params":{"text":"%s","types":[102,106,103]}}],"_ApplicationId":"%s"}`, text, m.Params["appId"])
+	reqBody := strings.NewReader(rawStr)
+
+	resp, err := http.Post(m.ApiUrl, "text/plain", reqBody)
 	if err != nil {
-		return "", "", nil
+		return "", "", err
 	}
 
-	req.Header.Set("content-type", "text/plain")
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
 	defer resp.Body.Close()
-	bodyText, err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		return "", "", err
 	}
-	fmt.Printf("%s\n", bodyText)
 
-	return "", "", nil
+	data := &Response{}
+	if err = json.Unmarshal(body, data); err != nil {
+		return "", "", err
+	}
+
+	if data.Result.Code != 200 || data.Result.Results.SearchAll.Code != 200 {
+		return "", "", fmt.Errorf("Mojo translate failed")
+	}
+	// fmt.Println(data)
+
+	words := data.Result.Results.SearchAll.Result.Word.SearchResult
+	examples := data.Result.Results.SearchAll.Result.Example.SearchResult
+	res1 := fmt.Sprintf("%s:%s\teg: %s:%s", words[0].Title, words[0].Excerpt, examples[0].Title, examples[0].Excerpt)
+
+	return res1, "", nil
 }
