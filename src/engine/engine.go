@@ -19,17 +19,17 @@ type Engine struct {
 	ApiUrl       string
 }
 
-func GetTranslators(sl string) []Translator {
-	translators := make([]Translator, 0)
+func GetTranslators(sl string) map[string]Translator {
+	translators := make(map[string]Translator)
 
-	// g := &Google{}
-	// g.ApiUrl = "http://translate.google.com/translate_a/single"
-	// g.SupportModel = "sentence"
-	// g.Params = map[string]string{
-	// 	"client": "at",
-	// 	"dt":     "t",
-	// }
-	// translators = append(translators, g)
+	g := &Google{}
+	g.ApiUrl = "http://translate.google.com/translate_a/single"
+	g.SupportModel = "sentence"
+	g.Params = map[string]string{
+		"client": "at",
+		"dt":     "t",
+	}
+	translators["google"] = g
 
 	if sl != "en" {
 		m := &Mojo{}
@@ -37,7 +37,7 @@ func GetTranslators(sl string) []Translator {
 		m.Params = map[string]string{
 			"appId": "E62VyFVLMiW7kvbtVq3p",
 		}
-		translators = append(translators, m)
+		translators["mojo"] = m
 	}
 
 	return translators
