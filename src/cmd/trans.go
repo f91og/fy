@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"github.com/f91og/fy/src/engine"
+	"github.com/f91og/fy/src/util"
 	"github.com/spf13/cobra"
 	"k8s.io/klog"
 )
 
 var (
 	model = "sentence"
-	sl    = "zh"
+	sl    = ""
 	trans string
 )
 
@@ -24,6 +25,10 @@ var TransCmd = &cobra.Command{
 			klog.Fatal("translate text not input")
 		}
 		fmt.Println(text)
+
+		if sl == "" {
+			sl = util.CheckLangType(text)
+		}
 
 		translators := engine.GetTranslators(sl)
 
@@ -71,5 +76,5 @@ func init() {
 	RootCmd.AddCommand(TransCmd)
 	TransCmd.PersistentFlags().StringVarP(&model, "model", "m", model, "translate model")
 	TransCmd.PersistentFlags().StringVarP(&sl, "sl", "s", sl, "source language type")
-	TransCmd.PersistentFlags().StringVarP(&trans, "translator", "trs", trans, "translator")
+	TransCmd.PersistentFlags().StringVarP(&trans, "translator", "t", trans, "translator")
 }
