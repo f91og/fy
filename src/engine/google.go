@@ -12,13 +12,13 @@ type Google struct {
 	Engine
 }
 
-func (g *Google) Translate(text, sl string) (string, string, error) {
+func (g *Google) Translate(text *Text) (string, string, error) {
 	var tls1, tls2 string
-	if sl == "zh" {
+	if text.LangType == ZH {
 		tls1, tls2 = "en", "ja"
-	} else if sl == "en" {
+	} else if text.LangType == EN {
 		tls1, tls2 = "zh", "ja"
-	} else if sl == "ja" {
+	} else if text.LangType == JA {
 		tls1, tls2 = "zh", "en"
 	}
 
@@ -27,9 +27,9 @@ func (g *Google) Translate(text, sl string) (string, string, error) {
 	for key, value := range g.Params {
 		params.Set(key, value)
 	}
-	params.Set("sl", sl)
+	params.Set("sl", text.LangType)
 	params.Set("tl", tls1)
-	params.Set("q", text)
+	params.Set("q", text.Value)
 	Url.RawQuery = params.Encode()
 
 	resp, err := http.Get(Url.String())

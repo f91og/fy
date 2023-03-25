@@ -39,8 +39,8 @@ type Response struct {
 	} `json:"result"`
 }
 
-func (m *Mojo) Translate(text, sl string) (string, string, error) {
-	rawStr := fmt.Sprintf(`{"functions":[{"name":"search-all","params":{"text":"%s","types":[102,106,103]}}],"_ApplicationId":"%s"}`, text, m.Params["appId"])
+func (m *Mojo) Translate(text *Text) (string, string, error) {
+	rawStr := fmt.Sprintf(`{"functions":[{"name":"search-all","params":{"text":"%s","types":[102,106,103]}}],"_ApplicationId":"%s"}`, text.Value, m.Params["appId"])
 	reqBody := strings.NewReader(rawStr)
 
 	resp, err := http.Post(m.ApiUrl, "text/plain", reqBody)

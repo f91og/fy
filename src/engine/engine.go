@@ -1,25 +1,6 @@
 package engine
 
-// const (
-// 	Google = iota
-// 	Baidu
-// 	DeepL
-// 	Hujiang
-// 	Mojo
-// 	Youdao
-// )
-
-type Translator interface {
-	Translate(text, sl string) (string, string, error)
-}
-
-type Engine struct {
-	Params       map[string]string
-	SupportModel string
-	ApiUrl       string
-}
-
-func GetTranslators(sl string) map[string]Translator {
+func GetTranslators(text *Text) map[string]Translator {
 	translators := make(map[string]Translator)
 
 	g := &Google{}
@@ -29,15 +10,19 @@ func GetTranslators(sl string) map[string]Translator {
 		"client": "at",
 		"dt":     "t",
 	}
-	translators["google"] = g
+	translators[GOOGLE] = g
 
-	if sl != "en" {
+	c := &Cambridge{}
+	c.ApiUrl = "https://dictionary.cambridge.org/zhs/%E8%AF%8D%E5%85%B8/%E8%8B%B1%E8%AF%AD-%E6%B1%89%E8%AF%AD-%E7%B9%81%E4%BD%93"
+	translators["cambridge"] = c
+
+	if text.LangType != EN {
 		m := &Mojo{}
 		m.ApiUrl = "https://api.mojidict.com/parse/functions/union-api"
 		m.Params = map[string]string{
 			"appId": "E62VyFVLMiW7kvbtVq3p",
 		}
-		translators["mojo"] = m
+		translators[MOJO] = m
 	}
 
 	return translators

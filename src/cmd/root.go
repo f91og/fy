@@ -8,7 +8,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"k8s.io/klog"
 )
 
 var version string
@@ -32,7 +31,6 @@ func init() {
 
 	RootCmd.AddCommand(versionCmd)
 
-	klog.InitFlags(nil)
 	goflag.Parse()
 	flag.CommandLine.AddGoFlagSet(goflag.CommandLine)
 }

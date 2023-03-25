@@ -2,73 +2,70 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
-	"github.com/f91og/fy/src/engine"
+	e "github.com/f91og/fy/src/engine"
 	"github.com/f91og/fy/src/util"
 	"github.com/spf13/cobra"
-	"k8s.io/klog"
 )
 
 var (
-	model = "sentence"
-	sl    = ""
+	model = "word"
+	sl    = e.EN
 	trans string
 )
 
 var TransCmd = &cobra.Command{
 	Use:   "trans",
-	Short: "translate text",
+	Short: "translate text/word",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		text := args[0]
-		if text == "" {
-			klog.Fatal("translate text not input")
+		if len(args) < 1 {
+			fmt.Println("Input the text that you want to translate")
+			cmd.Help()
+			return
 		}
-		fmt.Println(text)
+		// text := args[0]
+		text := &e.Text{Value: args[0], LangType: util.CheckLangType(args[0])}
 
-		if sl == "" {
-			sl = util.CheckLangType(text)
-		}
-
-		translators := engine.GetTranslators(sl)
+		translators := e.GetTranslators(text)
 
 		var res1, res2 string
 		var err error
 
+		res1, res2, _ = util.GetRecord(text.Value)
+		if res1 != "" {
+			fmt.Println(res1, res2)
+			return
+		}
+
 		if trans != "" {
 			switch trans {
-			case "google":
-				res1, res2, err = translators["google"].Translate(text, sl)
-			case "mojo":
-				res1, res2, err = translators["mojo"].Translate(text, sl)
+			case e.GOOGLE:
+				res1, res2, err = translators[e.GOOGLE].Translate(text)
+			case e.MOJO:
+				res1, res2, err = translators[e.MOJO].Translate(text)
 			default:
-				klog.Fatal("unsupported translator")
+				log.Fatal("unsupported translator")
 			}
 		} else {
 			if model == "w" || model == "word" {
-				res1, res2, err = translators["mojo"].Translate(text, sl)
+				if sl == e.EN {
+					res1, res2, err = translators[e.CAMBRIDGE].Translate(text)
+				} else {
+					res1, res2, err = translators[e.MOJO].Translate(text)
+				}
 			} else {
-				res1, res2, err = translators["google"].Translate(text, sl)
+				res1, res2, err = translators[e.GOOGLE].Translate(text)
 			}
 		}
 
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			fmt.Println(res1, res2)
+			fmt.Println(text.Value, "\n", res1, res2)
+			util.WriteRecord(text.Value, res1, res2)
 		}
-
-		// todo: check translator support model
-		// for _, trans := range translators {
-		// 	res1, res2, err := trans.Translate(text, sl)
-		// 	if err == nil {
-		// 		fmt.Println(res1)
-		// 		fmt.Println(res2)
-		// 		break
-		// 	} else {
-		// 		fmt.Println(err)
-		// 	}
-		// }
 	},
 }
 
