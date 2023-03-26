@@ -14,7 +14,7 @@ func GetTranslators(text *Text) map[string]Translator {
 
 	c := &Cambridge{}
 	c.ApiUrl = "https://dictionary.cambridge.org/zhs/%E8%AF%8D%E5%85%B8/%E8%8B%B1%E8%AF%AD-%E6%B1%89%E8%AF%AD-%E7%B9%81%E4%BD%93"
-	translators["cambridge"] = c
+	translators[CAMBRIDGE] = c
 
 	if text.LangType != EN {
 		m := &Mojo{}

@@ -3,21 +3,15 @@
 - 基本的cobra命令行框架 ✅
 - 从命令行读取要翻译的内容，同时输出其他2种语言的翻译（中/英/日）✅
 - 翻译engine的聚合，保证请求的稳定程度
-  - sentence模式
-    - google ✅ 
-    - baidu
-    - deepl
-  - 单词模式
-    - mojo ✅ 
-    - hujiang 
-    - bing
-- 指定翻译engine和翻译的模式（单词/句子）✅
-- 自动判断输入语言的种类 ✅
-- 设置可以把翻译结果缓存在本地，随机显示一条 ✅
-- 目前的单词翻译流程
   - zh -> en: google, zh -> ja: mojo
   - en -> zh: cambridge, en -> ja: google
   - ja -> zh: mojo, ja -> en: ?
+- 指定翻译engine和翻译的模式（单词/句子）✅
+- 自动判断输入语言的种类 ✅
+- 设置可以把翻译结果缓存在本地，随机显示一条 ✅
+- 支持配置
+- 把日志换成zap，test换成testify
+
 
 # 备注
 1. 在项目根目录运行 `go build .`会在当前根目录下编译出可执行的文件（目标机器的可执行二进制文件）
@@ -38,18 +32,13 @@
    ```
 5. [在 Golang 中使用 Cobra 创建 CLI 应用](https://www.qikqiak.com/post/create-cli-app-with-cobra/)
 6. http请求含有中文参数导致乱码：[golang常用的http请求操作](https://cloud.tencent.com/developer/article/1515297)
-7. 判断参数输入文本是中文，英文还是日文
 8. [golang 中结构体匿名嵌套时的初始化问题](https://juejin.cn/post/7138428171224875038)
 9. 把代码工具化，然后本地命令行工具式的使用
    - 不要编辑zsh里的那个PATH，那个每次source后会重复添加已有的PATH，会导致PATH出现很多重复的
    - 全局的话，建议修改`/etc/paths` or `/etc/bashrc` => https://www.jianshu.com/p/acb1f062a925
    - 设置好了PATH能找到`go/bin`后直接`go instal`就可以了
-10. 存储设计
-    - 文件：一行一条记录，检索单词, translation1, translation2各按照指定字符分割
-     - 优点：实现简单
-     - 缺点：读数据只能一行一行的扫描
-11. 但是;but;しかし%, 命令行的输出后面有%号的话，表示最后没有换行
-12. `type LangType string`给基本类型起别名的好处是1.让参数更有语义，2.可以限制传参数返参的类型，要不然的话只要是string都可以，相当于变相缩小domain了
+1.  但是;but;しかし%, 命令行的输出后面有%号的话，表示最后没有换行
+2.  `type LangType string`给基本类型起别名的好处是1.让参数更有语义，2.可以限制传参数返参的类型，要不然的话只要是string都可以，相当于变相缩小domain了
     - 程序提供的基本数据类型相当于基本工具，编程实现具体业务需求的时候最好尽可能的包装成具体业务领域相关的字段，达到语义化和类型限定的作用
 
 # 感想
