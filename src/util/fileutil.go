@@ -26,9 +26,8 @@ func GetRecord(value string) (string, string, error) {
 			if len(strs) > 1 {
 				res2 = strs[2]
 			}
+			return res1, res2, nil
 		}
-		return res1, res2, nil
-
 	}
 
 	return "", "", nil

@@ -21,7 +21,7 @@ func TestWriteReadRecord(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	res1, res2, err := util.GetRecord(&key)
+	res1, res2, err := util.GetRecord(key)
 
 	if err != nil {
 		t.Fatalf(err.Error())
