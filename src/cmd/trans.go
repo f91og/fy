@@ -11,7 +11,7 @@ import (
 
 var (
 	model = "word"
-	sl    = e.EN
+	sl    string
 	trans string
 )
 
@@ -26,7 +26,12 @@ var TransCmd = &cobra.Command{
 			return
 		}
 		// text := args[0]
-		text := &e.Text{Value: args[0], LangType: util.CheckLangType(args[0])}
+		text := &e.Text{Value: args[0]}
+		if sl == "" {
+			text.LangType = util.CheckLangType(text.Value)
+		} else {
+			text.LangType = sl
+		}
 
 		translators := e.GetTranslators(text)
 
@@ -50,7 +55,7 @@ var TransCmd = &cobra.Command{
 			}
 		} else {
 			if model == "w" || model == "word" {
-				if sl == e.EN {
+				if text.LangType == e.EN {
 					res1, res2, err = translators[e.CAMBRIDGE].Translate(text)
 				} else {
 					res1, res2, err = translators[e.MOJO].Translate(text)
