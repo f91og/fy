@@ -1,6 +1,8 @@
 package engine
 
-func GetTranslators(text *Text) map[string]Translator {
+import "fmt"
+
+func MakeTranslator(text *Text, model string, trans string) (Translator, error) {
 	translators := make(map[string]Translator)
 
 	g := &Google{}
@@ -25,5 +27,21 @@ func GetTranslators(text *Text) map[string]Translator {
 		translators[MOJO] = m
 	}
 
-	return translators
+	if trans != "" {
+		if translator, ok := translators[trans]; !ok {
+			return nil, fmt.Errorf("cannot find translator")
+		} else {
+			return translator, nil
+		}
+	}
+
+	if model == "s" || model == "sentence" {
+		return translators[GOOGLE], nil
+	}
+
+	if text.LangType == EN {
+		return translators[CAMBRIDGE], nil
+	} else {
+		return translators[MOJO], nil
+	}
 }

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 
 	e "github.com/f91og/fy/src/engine"
 	"github.com/f91og/fy/src/util"
@@ -33,10 +32,9 @@ var TransCmd = &cobra.Command{
 			text.LangType = sl
 		}
 
-		translators := e.GetTranslators(text)
+		translator, err := e.MakeTranslator(text, model, trans)
 
 		var res1, res2 string
-		var err error
 
 		res1, res2, _ = util.GetRecord(text.Value)
 		if res1 != "" {
@@ -44,32 +42,15 @@ var TransCmd = &cobra.Command{
 			return
 		}
 
-		if trans != "" {
-			switch trans {
-			case e.GOOGLE:
-				res1, res2, err = translators[e.GOOGLE].Translate(text)
-			case e.MOJO:
-				res1, res2, err = translators[e.MOJO].Translate(text)
-			default:
-				log.Fatal("unsupported translator")
-			}
-		} else {
-			if model == "w" || model == "word" {
-				if text.LangType == e.EN {
-					res1, res2, err = translators[e.CAMBRIDGE].Translate(text)
-				} else {
-					res1, res2, err = translators[e.MOJO].Translate(text)
-				}
-			} else {
-				res1, res2, err = translators[e.GOOGLE].Translate(text)
-			}
-		}
+		res1, res2, err = translator.Translate(text)
 
 		if err != nil {
 			fmt.Println(err)
 		} else {
 			fmt.Println(text.Value, "\n", res1, res2)
-			util.WriteRecord(text.Value, res1, res2)
+			if res1 != "" {
+				util.WriteRecord(text.Value, res1, res2)
+			}
 		}
 	},
 }
