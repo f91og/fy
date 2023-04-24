@@ -11,6 +11,8 @@ import (
 	"k8s.io/klog"
 )
 
+var num = 1
+
 var RandCmd = &cobra.Command{
 	Use:   "rand",
 	Short: "random show a translated record",
@@ -21,20 +23,21 @@ var RandCmd = &cobra.Command{
 			klog.Fatal(err)
 		}
 
-		rand.Seed(time.Now().UnixNano())
-		line := rand.Intn(lineCounts) + 1
-		record, err := util.GetRecordByLineNumber(line)
-		if err != nil {
-			klog.Fatal(err)
+		for i := 0; i < num; i++ {
+			rand.Seed(time.Now().UnixNano())
+			line := rand.Intn(lineCounts) + 1
+			record, err := util.GetRecordByLineNumber(line)
+			if err != nil {
+				klog.Fatal(err)
+			}
+			fmt.Println(strings.Replace(record, "|", ";", -1))
 		}
-		fmt.Println(strings.Replace(record, "|", ";", -1))
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(RandCmd)
-	// 指定random显示的个数和语言种类
-	// TransCmd.PersistentFlags().StringVarP(&model, "model", "m", model, "translate model")
+	RandCmd.PersistentFlags().IntVarP(&num, "num", "n", num, "rand word/sentence number")
 	// TransCmd.PersistentFlags().StringVarP(&sl, "sl", "s", sl, "source language type")
 	// TransCmd.PersistentFlags().StringVarP(&trans, "translator", "t", trans, "translator")
 }
