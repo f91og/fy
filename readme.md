@@ -1,6 +1,6 @@
 # 使用
+`fy trans word/sentence -t=google -sl=en -m=word/sentence`
 # 功能
-- 基本的cobra命令行框架 ✅
 - 从命令行读取要翻译的内容，同时输出其他2种语言的翻译（中/英/日）✅
 - 翻译engine的聚合，保证请求的稳定程度
   - zh -> en: google, zh -> ja: mojo
@@ -11,7 +11,7 @@
 - 设置可以把翻译结果缓存在本地，随机显示一条 ✅
 - 支持配置
 - 把日志换成zap，test换成testify
-
+- 制作全屏幕划词翻译的工具
 
 # 备注
 1. 在项目根目录运行 `go build .`会在当前根目录下编译出可执行的文件（目标机器的可执行二进制文件）
