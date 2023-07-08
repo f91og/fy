@@ -1,4 +1,4 @@
-package engine
+package model
 
 import (
 	"fmt"
@@ -12,18 +12,18 @@ type Cambridge struct {
 	Engine
 }
 
-func (c *Cambridge) Translate(text *Text) (string, string, error) {
-	url := fmt.Sprintf("%s/%s", c.ApiUrl, text.Value)
+func (c *Cambridge) Translate(query string) (Record, error) {
+	url := fmt.Sprintf("%s/%s", c.ApiUrl, query)
 
 	res, err := http.Get(url)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 	defer res.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 
 	prons := doc.Find(".pron.dpron .ipa.dipa").First().Text()
@@ -35,5 +35,6 @@ func (c *Cambridge) Translate(text *Text) (string, string, error) {
 	// replacer := strings.NewReplacer("\n", "", "\t", "")
 	// tmp := strings.Split(replacer.Replace(examTrans), ".")
 	// example := fmt.Sprintf("%s/%s", tmp[0], strings.TrimLeft(tmp[1], " "))
-	return fmt.Sprintf("%s\t%s\t%s", prons, wordTrans, fmt.Sprintf("%s/%s", eg, egTrans)), "", nil
+
+	return &WordRecord{query, prons, wordTrans, fmt.Sprintf("%s/%s", eg, egTrans)}, nil
 }

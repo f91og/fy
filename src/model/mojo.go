@@ -1,4 +1,4 @@
-package engine
+package model
 
 import (
 	"encoding/json"
@@ -39,34 +39,34 @@ type Response struct {
 	} `json:"result"`
 }
 
-func (m *Mojo) Translate(text *Text) (string, string, error) {
-	rawStr := fmt.Sprintf(`{"functions":[{"name":"search-all","params":{"text":"%s","types":[102,106,103]}}],"_ApplicationId":"%s"}`, text.Value, m.Params["appId"])
+func (m *Mojo) Translate(query string) (Record, error) {
+	rawStr := fmt.Sprintf(`{"functions":[{"name":"search-all","params":{"text":"%s","types":[102,106,103]}}],"_ApplicationId":"%s"}`, query, m.Params["appId"])
 	reqBody := strings.NewReader(rawStr)
 
 	resp, err := http.Post(m.ApiUrl, "text/plain", reqBody)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 
 	data := &Response{}
 	if err = json.Unmarshal(body, data); err != nil {
-		return "", "", err
+		return nil, err
 	}
 
 	if data.Result.Code != 200 || data.Result.Results.SearchAll.Code != 200 {
-		return "", "", fmt.Errorf("Mojo translate failed")
+		return nil, fmt.Errorf("Mojo translate failed")
 	}
 	// fmt.Println(data)
 
 	words := data.Result.Results.SearchAll.Result.Word.SearchResult
 	examples := data.Result.Results.SearchAll.Result.Example.SearchResult
-	res1 := fmt.Sprintf("%s:%s\teg: %s:%s", words[0].Title, words[0].Excerpt, examples[0].Title, examples[0].Excerpt)
+	// res1 := fmt.Sprintf("%s:%s\teg: %s:%s", words[0].Title, words[0].Excerpt, examples[0].Title, examples[0].Excerpt)
 
-	return res1, "", nil
+	return &WordRecord{words[0].Title, words[0].Excerpt, examples[0].Title, examples[0].Excerpt}, nil
 }

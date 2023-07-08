@@ -1,36 +1,59 @@
 package cmd
 
 import (
-	"fmt"
 	"math/rand"
-	"strings"
 	"time"
 
-	"github.com/f91og/fy/src/util"
+	"github.com/f91og/fy/src/model"
 	"github.com/spf13/cobra"
-	"k8s.io/klog"
 )
 
-var num = 1
+var (
+	num      = 1
+	langType = "en"
+	interval = 0
+)
 
 var RandCmd = &cobra.Command{
 	Use:   "rand",
 	Short: "random show a translated record",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		lineCounts, err := util.GetFileLines()
-		if err != nil {
-			klog.Fatal(err)
+		if num == -1 {
+			num = 10000
+			interval = 1
 		}
 
 		for i := 0; i < num; i++ {
-			rand.Seed(time.Now().UnixNano())
-			line := rand.Intn(lineCounts) + 1
-			record, err := util.GetRecordByLineNumber(line)
-			if err != nil {
-				klog.Fatal(err)
+			if langType == "" {
+				randomType := rand.Intn(10)
+				if randomType == 9 || randomType == 0 {
+					langType = "zh"
+				} else if randomType%2 == 0 {
+					langType = "en"
+				} else {
+					langType = "ja"
+				}
 			}
-			fmt.Println(strings.Replace(record, "|", ";", -1))
+			dict, _ := model.InitDict(langType)
+			wordLen, sentenceLen := len(dict.WordRecords), len(dict.SentenceRecords)
+			index := rand.Intn(wordLen + sentenceLen)
+			if index >= wordLen {
+				index = index - wordLen
+				for _, record := range dict.SentenceRecords {
+					if i == index {
+						record.ColorPrint()
+					}
+				}
+			} else {
+				for _, record := range dict.WordRecords {
+					if i == index {
+						record.ColorPrint()
+					}
+				}
+			}
+
+			time.Sleep(time.Second * time.Duration(interval))
 		}
 	},
 }
@@ -38,6 +61,6 @@ var RandCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(RandCmd)
 	RandCmd.PersistentFlags().IntVarP(&num, "num", "n", num, "rand word/sentence number")
-	// TransCmd.PersistentFlags().StringVarP(&sl, "sl", "s", sl, "source language type")
-	// TransCmd.PersistentFlags().StringVarP(&trans, "translator", "t", trans, "translator")
+	RandCmd.PersistentFlags().StringVarP(&langType, "langType", "l", langType, "source language type")
+	RandCmd.PersistentFlags().IntVarP(&interval, "interval", "i", interval, "play interval")
 }

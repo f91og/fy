@@ -2,16 +2,19 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
-	e "github.com/f91og/fy/src/engine"
+	"github.com/f91og/fy/src/model"
 	"github.com/f91og/fy/src/util"
 	"github.com/spf13/cobra"
 )
 
 var (
-	model = "word"
-	sl    string
+	mode = "word"
+	// sl            string
 	trans string
+	// interactive   bool
+	// autoPronounce bool
 )
 
 var TransCmd = &cobra.Command{
@@ -24,32 +27,23 @@ var TransCmd = &cobra.Command{
 			cmd.Help()
 			return
 		}
-		// text := args[0]
-		text := &e.Text{Value: args[0]}
-		if sl == "" {
-			text.LangType = util.CheckLangType(text.Value)
-		} else {
-			text.LangType = sl
-		}
-
-		translator, err := e.MakeTranslator(text, model, trans)
-
-		var res1, res2 string
-
-		res1, res2, _ = util.GetRecord(text.Value)
-		if res1 != "" {
-			fmt.Println(res1, res2)
-			return
-		}
-
-		res1, res2, err = translator.Translate(text)
-
+		query := args[0]
+		dict, err := model.InitDict(query)
 		if err != nil {
-			fmt.Println(err)
+			log.Fatalf(err.Error())
+		}
+		record, err := dict.GetRecordByQuery(query)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+		if record != nil {
+			record.ColorPrint()
 		} else {
-			fmt.Println(text.Value, "\n", res1, res2)
-			if res1 != "" {
-				util.WriteRecord(text.Value, res1, res2)
+			if record, err = model.Translate(query, util.CheckLangType(query), mode, trans); err != nil {
+				dict.AddRecord(record)
+				record.ColorPrint()
+			} else {
+				log.Fatalf(err.Error())
 			}
 		}
 	},
@@ -57,7 +51,9 @@ var TransCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(TransCmd)
-	TransCmd.PersistentFlags().StringVarP(&model, "model", "m", model, "translate model")
-	TransCmd.PersistentFlags().StringVarP(&sl, "sl", "s", sl, "source language type")
+	TransCmd.PersistentFlags().StringVarP(&mode, "model", "m", mode, "translate model")
+	// TransCmd.PersistentFlags().StringVarP(&sl, "sl", "s", sl, "source language type")
 	TransCmd.PersistentFlags().StringVarP(&trans, "translator", "t", trans, "translator")
+	// TransCmd.PersistentFlags().BoolVarP(&interactive, "interactive", "i", interactive, "interactive model")
+	// TransCmd.PersistentFlags().BoolVarP(&autoPronounce, "autoPron", "a", true, "auto pronounce")
 }
