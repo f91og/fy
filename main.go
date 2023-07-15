@@ -2,12 +2,16 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/f91og/fy/src/cmd"
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	if err := cmd.RootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(2)
