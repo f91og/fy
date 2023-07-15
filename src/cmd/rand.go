@@ -10,7 +10,7 @@ import (
 
 var (
 	num      = 1
-	langType = "en"
+	langType = ""
 	interval = 0
 )
 
@@ -28,15 +28,18 @@ var RandCmd = &cobra.Command{
 			if langType == "" {
 				randomType := rand.Intn(10)
 				if randomType == 9 || randomType == 0 {
-					langType = "zh"
+					langType = model.ZH
 				} else if randomType%2 == 0 {
-					langType = "en"
+					langType = model.EN
 				} else {
-					langType = "ja"
+					langType = model.JA
 				}
 			}
 			dict, _ := model.InitDict(langType)
 			wordLen, sentenceLen := len(dict.WordRecords), len(dict.SentenceRecords)
+			if wordLen+sentenceLen == 0 {
+				return
+			}
 			index := rand.Intn(wordLen + sentenceLen)
 			if index >= wordLen {
 				index = index - wordLen

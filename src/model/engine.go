@@ -28,11 +28,11 @@ type Engine struct {
 func Translate(query string, langType string, mode string, trans string) (Record, error) {
 	translator, err := makeTranslator(query, langType, mode, trans)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("make translator failed: %w", err)
 	}
 
 	if record, err := translator.Translate(query); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("translate failed: %w", err)
 	} else {
 		return record, nil
 	}
@@ -49,6 +49,9 @@ func makeTranslator(query string, langType string, mode string, trans string) (T
 		"dt":     "t",
 	}
 	translators[GOOGLE] = g
+	if mode == "sentence" {
+		return g, nil
+	}
 
 	c := &Cambridge{}
 	c.ApiUrl = "https://dictionary.cambridge.org/zhs/%E8%AF%8D%E5%85%B8/%E8%8B%B1%E8%AF%AD-%E6%B1%89%E8%AF%AD-%E7%B9%81%E4%BD%93"
@@ -72,9 +75,7 @@ func makeTranslator(query string, langType string, mode string, trans string) (T
 
 	if langType == EN {
 		return translators[CAMBRIDGE], nil
-	} else if langType == JA {
-		return translators[MOJO], nil
 	} else {
-		return translators[GOOGLE], nil
+		return translators[MOJO], nil
 	}
 }

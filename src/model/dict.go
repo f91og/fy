@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"os/user"
 	"strings"
 	"time"
 
+	"github.com/f91og/fy/src/util"
 	"github.com/fatih/color"
 )
 
@@ -36,17 +38,30 @@ type Dict struct {
 }
 
 func InitDict(langType string) (*Dict, error) {
-	d := &Dict{}
-	if langType == EN {
-		d.FilePath = "/Users/xue.a.yu/.fy/dict.en"
-	} else if langType == JA {
-		d.FilePath = "/Users/xue.a.yu/.fy/dict.ja"
-	} else if langType == ZH {
-		d.FilePath = "/Users/xue.a.yu/.fy/dict.zh"
-	}
-	file, err := os.Open(d.FilePath)
+	usr, err := user.Current()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get current user info when init dict: %w", err)
+	}
+	homeDir := usr.HomeDir
+	os.MkdirAll(fmt.Sprintf("%s/.fy", homeDir), 0755)
+
+	d := &Dict{
+		LangType:        langType,
+		WordRecords:     make(map[string]WordRecord),
+		SentenceRecords: make(map[string]SentenceRecord),
+	}
+
+	if langType == EN {
+		d.FilePath = fmt.Sprintf("%s/.fy/dict.en", homeDir)
+	} else if langType == JA {
+		d.FilePath = fmt.Sprintf("%s/.fy/dict.ja", homeDir)
+	} else if langType == ZH {
+		d.FilePath = fmt.Sprintf("%s/.fy/dict.ja", homeDir)
+	}
+
+	file, err := os.OpenFile(d.FilePath, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open file %s when init dict: %w", d.FilePath, err)
 	}
 
 	defer file.Close()
@@ -54,10 +69,11 @@ func InitDict(langType string) (*Dict, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		strs := strings.Split(line, "|")
+		key := strs[0]
 		if len(strs) > 3 {
-			d.WordRecords[strs[0]] = WordRecord{strs[0], strs[1], strs[2], strs[3]}
+			d.WordRecords[key] = WordRecord{strs[0], strs[1], strs[2], strs[3]}
 		} else {
-			d.SentenceRecords[strs[0]] = SentenceRecord{strs[0], strs[1], strs[2]}
+			d.SentenceRecords[key] = SentenceRecord{strs[0], strs[1], strs[2]}
 		}
 	}
 
@@ -65,8 +81,7 @@ func InitDict(langType string) (*Dict, error) {
 }
 
 func (d *Dict) AddRecord(record interface{}) error {
-	os.MkdirAll(d.FilePath, 0755)
-	file, err := os.OpenFile(d.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(d.FilePath, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
@@ -77,25 +92,20 @@ func (d *Dict) AddRecord(record interface{}) error {
 	switch r := record.(type) {
 	case WordRecord:
 		d.WordRecords[r.Word] = r
-		recordStr = fmt.Sprintf("%s | %s | %s | %s\n", r.Word, r.Pronunciation, r.Translation, r.Example)
+		recordStr = fmt.Sprintf("%s|%s|%s|%s\n", r.Word, r.Pronunciation, r.Translation, r.Example)
 	case SentenceRecord:
 		d.SentenceRecords[r.Sentence] = r
-		recordStr = fmt.Sprintf("%s | %s | %s\n", r.Sentence, r.Translation1, r.Translation2)
+		recordStr = fmt.Sprintf("%s|%s|%s\n", r.Sentence, r.Translation1, r.Translation2)
 	default:
 		return fmt.Errorf("unsupported record type")
 	}
 
 	_, err = file.WriteString(recordStr)
 	if err != nil {
-		return err
+		return fmt.Errorf("add record failed: %w", err)
 	}
 
 	return nil
-}
-
-func (d *Dict) GetRecordByQuery(query string) (Record, error) {
-
-	return nil, fmt.Errorf("cannot find query record")
 }
 
 func (d *Dict) GetRecordByLine(line int) (Record, error) {
@@ -123,20 +133,30 @@ func (d *Dict) GetRecordByLine(line int) (Record, error) {
 }
 
 func (d *Dict) DeleteRecordByQuery(query string) error {
+	_, ok1 := d.WordRecords[query]
+	_, ok2 := d.SentenceRecords[query]
+
+	if ok1 || ok2 {
+		delete(d.WordRecords, query)
+		delete(d.SentenceRecords, query)
+		if err := util.DeleteLine(d.FilePath, query); err != nil {
+			return fmt.Errorf("delete record failed: %w", err)
+		}
+	}
 
 	return nil
 }
 
 var (
-	green = color.New(color.Bold, color.FgGreen).SprintFunc()
-	cyan  = color.New(color.Bold, color.FgCyan).SprintFunc()
-	white = color.New(color.Bold, color.FgWhite).SprintFunc()
+	yellow = color.New(color.Bold, color.FgHiYellow).SprintFunc()
+	cyan   = color.New(color.Bold, color.FgCyan).SprintFunc()
+	white  = color.New(color.Bold, color.FgWhite).SprintFunc()
 )
 
-func (r *WordRecord) ColorPrint() {
-	fmt.Printf("%s; %s; %s; %s\n", green(r.Word), cyan(r.Pronunciation), white(r.Translation), green(r.Example))
+func (r WordRecord) ColorPrint() {
+	fmt.Printf("%s; %s; %s; %s\n", yellow(r.Word), cyan(r.Pronunciation), white(r.Translation), yellow(r.Example))
 }
 
-func (r *SentenceRecord) ColorPrint() {
-	fmt.Printf("%s; %s; %s\n", green(r.Sentence), cyan(r.Translation1), white(r.Translation2))
+func (r SentenceRecord) ColorPrint() {
+	fmt.Printf("%s; %s; %s\n", yellow(r.Sentence), cyan(r.Translation1), white(r.Translation2))
 }

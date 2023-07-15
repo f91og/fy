@@ -45,18 +45,18 @@ func (m *Mojo) Translate(query string) (Record, error) {
 
 	resp, err := http.Post(m.ApiUrl, "text/plain", reqBody)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create post request in mojo translator: %w", err)
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get mojo translator result: %w", err)
 	}
 
 	data := &Response{}
 	if err = json.Unmarshal(body, data); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse mojo translator result: %w", err)
 	}
 
 	if data.Result.Code != 200 || data.Result.Results.SearchAll.Code != 200 {
@@ -68,5 +68,15 @@ func (m *Mojo) Translate(query string) (Record, error) {
 	examples := data.Result.Results.SearchAll.Result.Example.SearchResult
 	// res1 := fmt.Sprintf("%s:%s\teg: %s:%s", words[0].Title, words[0].Excerpt, examples[0].Title, examples[0].Excerpt)
 
-	return &WordRecord{words[0].Title, words[0].Excerpt, examples[0].Title, examples[0].Excerpt}, nil
+	wordWithPron := strings.Split(words[0].Title, "|")
+	word := strings.TrimSpace(wordWithPron[0])
+	var pron string
+	if len(wordWithPron) >= 2 {
+		pron = strings.TrimSpace(wordWithPron[1])
+	}
+
+	trans := strings.TrimSpace(words[0].Excerpt)
+	example := fmt.Sprintf("%s/%s", examples[0].Title, examples[0].Excerpt)
+
+	return WordRecord{word, pron, trans, example}, nil
 }

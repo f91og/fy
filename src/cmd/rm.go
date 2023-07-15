@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/f91og/fy/src/model"
@@ -27,7 +26,7 @@ var RmCmd = &cobra.Command{
 		}
 
 		if err := dict.DeleteRecordByQuery(query); err != nil {
-			fmt.Println("delete failed", err)
+			log.Fatalf(err.Error())
 		}
 	},
 }

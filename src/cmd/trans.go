@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/f91og/fy/src/model"
 	"github.com/f91og/fy/src/util"
@@ -27,25 +28,29 @@ var TransCmd = &cobra.Command{
 			cmd.Help()
 			return
 		}
-		query := args[0]
-		dict, err := model.InitDict(query)
+		query := strings.TrimSpace(args[0])
+		langType := util.CheckLangType(query)
+		dict, err := model.InitDict(langType) // todo: should wrapper here
 		if err != nil {
 			log.Fatalf(err.Error())
 		}
-		record, err := dict.GetRecordByQuery(query)
-		if err != nil {
-			log.Fatalf(err.Error())
-		}
-		if record != nil {
+
+		if record, ok := dict.WordRecords[query]; ok {
 			record.ColorPrint()
-		} else {
-			if record, err = model.Translate(query, util.CheckLangType(query), mode, trans); err != nil {
-				dict.AddRecord(record)
-				record.ColorPrint()
-			} else {
-				log.Fatalf(err.Error())
-			}
+			return
+		} else if record, ok := dict.SentenceRecords[query]; ok {
+			record.ColorPrint()
+			return
 		}
+
+		record, err := model.Translate(query, langType, mode, trans)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+		if err = dict.AddRecord(record); err != nil {
+			log.Fatalf(err.Error())
+		}
+		record.ColorPrint()
 	},
 }
 

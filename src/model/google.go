@@ -38,7 +38,7 @@ func (g *Google) Translate(query string) (Record, error) {
 
 	resp, err := http.Get(Url.String())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create request in google translator: %w", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
@@ -46,12 +46,12 @@ func (g *Google) Translate(query string) (Record, error) {
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get google translator result: %w", err)
 	}
 
 	var data []interface{}
 	if err = json.Unmarshal(body, &data); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse google translator result: %w", err)
 	}
 
 	res1 := data[0].([]interface{})[0].([]interface{})[0].(string)
@@ -60,18 +60,18 @@ func (g *Google) Translate(query string) (Record, error) {
 	Url.RawQuery = params.Encode()
 	resp2, err := http.Get(Url.String())
 	if err != nil {
-		return &SentenceRecord{query, res1, ""}, err
+		return SentenceRecord{query, res1, ""}, err
 	}
 	defer resp2.Body.Close()
 	body2, err := ioutil.ReadAll(resp2.Body)
 	if err != nil {
-		return &SentenceRecord{query, res1, ""}, err
+		return SentenceRecord{query, res1, ""}, err
 	}
 	var data2 []interface{}
 	if err = json.Unmarshal(body2, &data2); err != nil {
-		return &SentenceRecord{query, res1, ""}, err
+		return SentenceRecord{query, res1, ""}, err
 	}
 	res2 := data2[0].([]interface{})[0].([]interface{})[0].(string)
 
-	return &SentenceRecord{query, res1, res2}, nil
+	return SentenceRecord{query, res1, res2}, nil
 }
