@@ -1,19 +1,12 @@
-# 使用
-`fy trans word/sentence -t=google -sl=en -m=word/sentence`
-# 功能
-- 从命令行读取要翻译的内容，同时输出其他2种语言的翻译（中/英/日）✅
-- 翻译engine的聚合，保证请求的稳定程度
-  - zh -> en: google, zh -> ja: mojo
-  - en -> zh: cambridge, en -> ja: google
-  - ja -> zh: mojo, ja -> en: ?
-- 指定翻译engine和翻译的模式（单词/句子）✅
-- 自动判断输入语言的种类 ✅
-- 设置可以把翻译结果缓存在本地，随机显示一条 ✅
-- 支持配置
-- 把日志换成zap，test换成testify
-- 制作全屏幕划词翻译的工具
+# Usage
+`fy trans 'word or sentence'`, support Japanese and English, can automatically judge language type and mode for input
+`fy trans word/sentence -t=google -sl=en -m=word/sentence`, specify source language, translator and translate mode for input
+# Todo
+- add chatgpt translator, support compose cmd
+- viper config
+- zap，testify
 
-# 备注
+# Note
 1. 在项目根目录运行 `go build .`会在当前根目录下编译出可执行的文件（目标机器的可执行二进制文件）
 2. `go clean -cache -i`
 3. log.Fatal()&klog.Fatal()
@@ -52,4 +45,4 @@
 3. 可以利用接口实现部分继承机制，当需要指定一个类型为某几个类型之一时可以使用，可以使代码不会到处都是interface{}
 4. 从业务外部过来的数据都是散的（流向ui接口层的数据），如何在传入之后的业务domain处理中把它包装成rich data是个要考虑的事情
    1. 数据流的逐步rich（类型 + 包装）的方式
-   
+5. var _ SomeInterface = (*SomeStruct)(nil), check a struct always implemented a interface, because interface implement is implicit
