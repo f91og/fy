@@ -33,7 +33,7 @@
 1.  但是;but;しかし%, 命令行的输出后面有%号的话，表示最后没有换行
 2.  `type LangType string`给基本类型起别名的好处是1.让参数更有语义，2.可以限制传参数返参的类型，要不然的话只要是string都可以，相当于变相缩小domain了
     - 程序提供的基本数据类型相当于基本工具，编程实现具体业务需求的时候最好尽可能的包装成具体业务领域相关的字段，达到语义化和类型限定的作用
-3. go test -run TestFunctionName ./src/test/your_test.go
+3. `go test -run TestFunctionName ./src/test/your_test.go`
 
 # 感想
 1. go中的接口是**一组方法**的集合，不是某个单个方法
@@ -45,4 +45,4 @@
 3. 可以利用接口实现部分继承机制，当需要指定一个类型为某几个类型之一时可以使用，可以使代码不会到处都是interface{}
 4. 从业务外部过来的数据都是散的（流向ui接口层的数据），如何在传入之后的业务domain处理中把它包装成rich data是个要考虑的事情
    1. 数据流的逐步rich（类型 + 包装）的方式
-5. var _ SomeInterface = (*SomeStruct)(nil), check a struct always implemented a interface, because interface implement is implicit
+5. `var _ SomeInterface = (*SomeStruct)(nil)`, check a struct always implemented a interface, because interface implement is implicit
