@@ -1,6 +1,6 @@
 # Usage
-`fy trans 'word or sentence'`, support Japanese and English, can automatically judge language type and mode for input
-`fy trans word/sentence -t=google -sl=en -m=word/sentence`, specify source language, translator and translate mode for input
+- `fy trans 'word or sentence'`, support Japanese and English, can automatically judge language type and mode for input
+- `fy trans word/sentence -t=google -sl=en -m=word/sentence`, specify source language, translator and translate mode for input
 # Todo
 - add chatgpt translator, support compose cmd
 - viper config
