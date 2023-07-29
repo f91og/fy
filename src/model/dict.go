@@ -56,7 +56,7 @@ func InitDict(langType string) (*Dict, error) {
 	} else if langType == JA {
 		d.FilePath = fmt.Sprintf("%s/.fy/dict.ja", homeDir)
 	} else if langType == ZH {
-		d.FilePath = fmt.Sprintf("%s/.fy/dict.ja", homeDir)
+		d.FilePath = fmt.Sprintf("%s/.fy/dict.zh", homeDir)
 	}
 
 	file, err := os.OpenFile(d.FilePath, os.O_RDWR|os.O_CREATE, 0644)

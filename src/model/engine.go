@@ -25,8 +25,8 @@ type Engine struct {
 	ApiUrl       string
 }
 
-func Translate(query string, langType string, mode string, trans string) (Record, error) {
-	translator, err := makeTranslator(query, langType, mode, trans)
+func Translate(query string, langType string, sentence bool, trans string) (Record, error) {
+	translator, err := makeTranslator(query, langType, sentence, trans)
 	if err != nil {
 		return nil, fmt.Errorf("make translator failed: %w", err)
 	}
@@ -38,7 +38,7 @@ func Translate(query string, langType string, mode string, trans string) (Record
 	}
 }
 
-func makeTranslator(query string, langType string, mode string, trans string) (Translator, error) {
+func makeTranslator(query string, langType string, sentence bool, trans string) (Translator, error) {
 	translators := make(map[string]Translator)
 
 	g := &Google{}
@@ -49,7 +49,7 @@ func makeTranslator(query string, langType string, mode string, trans string) (T
 		"dt":     "t",
 	}
 	translators[GOOGLE] = g
-	if mode == "sentence" {
+	if sentence {
 		return g, nil
 	}
 
