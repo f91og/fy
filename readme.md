@@ -1,7 +1,7 @@
 # Usage
 - `fy trans 'word or sentence'`, support translate Japanese and English to Chinese, can automatically judge language type
 - `fy trans word -t=google`, specify translator used
-- fy trans word -s`, sentence translator mode
+- `fy trans word -s`, sentence translator mode
   
 # Todo
 - add chatgpt translator, support compose cmd
