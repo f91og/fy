@@ -1,5 +1,5 @@
 # Usage
-- `fy trans 'word or sentence'`, support translate Japanese and English to Chinese, can automatically judge language type and mode for input
+- `fy trans 'word or sentence'`, support translate Japanese and English to Chinese, can automatically judge language type
 - `fy trans word -t=google`, specify translator used
 - fy trans word -s`, sentence translator mode
   
